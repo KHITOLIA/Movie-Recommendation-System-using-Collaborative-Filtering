@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CineMatch</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #080810;
+      --sur:      #0f0f1c;
+      --sur2:     #16162a;
+      --bdr:      rgba(255,255,255,0.07);
+      --bdr2:     rgba(255,255,255,0.13);
+      --gold:     #e4c46a;
+      --gold-dim: rgba(228,196,106,0.10);
+      --txt:      #edeae0;
+      --muted:    #6e6c65;
+      --muted2:   #3d3b36;
+    }
+
+    html { height: 100%; }
+
+    body {
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--txt);
+      font-family: 'DM Sans', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 1.25rem 6rem;
+    }
+
+    /* Grain */
+    body::after {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.022'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 0;
+    }
+
+    /* Gold top bar */
+    .topbar {
+      width: 100%; height: 3px;
+      background: repeating-linear-gradient(90deg, var(--gold) 0 16px, transparent 16px 26px);
+      opacity: 0.55; flex-shrink: 0;
+    }
+
+    .page { position: relative; z-index: 1; width: 100%; max-width: 620px; }
+
+    /* ── Hero ── */
+    .hero {
+      padding: 4.5rem 0 3rem;
+      text-align: center;
+    }
+
+    .eyebrow {
+      font-size: 10px;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 0.6rem;
+    }
+
+    .logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(3.8rem, 11vw, 6.5rem);
+      line-height: 0.9;
+      letter-spacing: 0.03em;
+      color: var(--txt);
+    }
+    .logo em { color: var(--gold); font-style: normal; }
+
+    .sub {
+      margin-top: 0.9rem;
+      font-size: 13px;
+      font-weight: 300;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+    }
+
+    /* ── Search bar ── */
+    .search-wrap {
+      margin-top: 2.5rem;
+    }
+
+    form {
+      display: flex;
+      align-items: center;
+      background: var(--sur);
+      border: 0.5px solid var(--bdr);
+      border-radius: 14px;
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+
+    form:focus-within { border-color: var(--gold); }
+
+    form input[type="text"] {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      padding: 0 1.25rem;
+      height: 56px;
+      font-size: 15px;
+      font-family: 'DM Sans', sans-serif;
+      color: var(--txt);
+      min-width: 0;
+    }
+
+    form input[type="text"]::placeholder { color: var(--muted2); }
+
+    .search-btn {
+      flex-shrink: 0;
+      height: 56px;
+      padding: 0 1.5rem;
+      background: var(--gold);
+      color: #080810;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      border: none;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+    .search-btn:hover  { opacity: 0.85; }
+    .search-btn:active { transform: scale(0.97); }
+
+    /* ── No-match notice (inline, not a box) ── */
+    .no-match {
+      margin-top: 1.5rem;
+      text-align: center;
+      font-size: 13px;
+      color: var(--muted);
+      letter-spacing: 0.02em;
+    }
+
+    /* ── Results ── */
+    .results { margin-top: 3rem; }
+
+    .results-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 1.1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 0.5px solid var(--bdr);
+    }
+
+    .results-label {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.35rem;
+      letter-spacing: 0.06em;
+      color: var(--txt);
+    }
+
+    .results-query {
+      font-size: 12px;
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    /* Cards */
+    .movie-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+
+    .movie-card {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.9rem 1.1rem;
+      background: var(--sur);
+      border: 0.5px solid var(--bdr);
+      border-radius: 10px;
+      opacity: 0;
+      transform: translateY(10px);
+      animation: rise 0.32s ease forwards;
+      transition: background 0.18s, border-color 0.18s;
+    }
+    .movie-card:hover { background: var(--sur2); border-color: var(--bdr2); }
+
+    .movie-card:nth-child(1) { animation-delay: 0.04s; }
+    .movie-card:nth-child(2) { animation-delay: 0.09s; }
+    .movie-card:nth-child(3) { animation-delay: 0.14s; }
+    .movie-card:nth-child(4) { animation-delay: 0.19s; }
+    .movie-card:nth-child(5) { animation-delay: 0.24s; }
+
+    @keyframes rise {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.1rem;
+      color: var(--gold);
+      min-width: 28px;
+      text-align: right;
+      letter-spacing: 0.04em;
+      flex-shrink: 0;
+    }
+
+    .sep {
+      width: 0.5px;
+      height: 28px;
+      background: var(--bdr);
+      flex-shrink: 0;
+    }
+
+    .title {
+      flex: 1;
+      font-size: 14px;
+      font-weight: 400;
+      color: var(--txt);
+      letter-spacing: 0.01em;
+    }
+
+    .star { font-size: 11px; color: var(--muted2); flex-shrink: 0; }
+
+    /* ── Footer ── */
+    .foot {
+      margin-top: 4rem;
+      font-size: 11px;
+      color: var(--muted2);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar"></div>
+
+  <div class="page">
+
+    <div class="hero">
+      <p class="eyebrow">Collaborative filtering</p>
+      <h1 class="logo">CINE<em>MATCH</em></h1>
+      <p class="sub">Enter a film you love — get five worth watching next.</p>
+    </div>
+
+    <div class="search-wrap">
+      <form method="post" autocomplete="off">
+        <input
+          type="text"
+          name="movie_name"
+          placeholder="e.g. Inception, The Godfather…"
+          value="{{ request.form.get('movie_name', '') }}"
+          autofocus
+          required
+        />
+        <button class="search-btn" type="submit">Find Films</button>
+      </form>
+
+      {% if request.method == 'POST' and not recommendations %}
+        <p class="no-match">No match found — try a different spelling.</p>
+      {% endif %}
+    </div>
+
+    {% if recommendations %}
+    <section class="results">
+      <div class="results-head">
+        <span class="results-label">Because you liked</span>
+        <span class="results-query">{{ request.form.get('movie_name', '') }}</span>
+      </div>
+      <ul class="movie-list">
+        {% for movie in recommendations %}
+        <li class="movie-card">
+          {% set parts = movie.split('. ', 1) %}
+          <span class="num">{{ parts[0] }}</span>
+          <span class="sep"></span>
+          <span class="title">{{ parts[1] if parts|length > 1 else movie }}</span>
+          <span class="star">★</span>
+        </li>
+        {% endfor %}
+      </ul>
+    </section>
+    {% endif %}
+
+    <p class="foot">CineMatch &mdash; powered by collaborative filtering</p>
+  </div>
+</body>
+</html>
