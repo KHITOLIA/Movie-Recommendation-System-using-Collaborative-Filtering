@@ -1,39 +1,84 @@
 from flask import Flask, render_template, request
-from difflib import get_close_matches
 import pickle
 import numpy as np
 
 app = Flask(__name__)
 
+# load pickle files
 pt = pickle.load(open('pt.pkl', 'rb'))
 similarity_score = pickle.load(open('score.pkl', 'rb'))
 
 
 def recommend(movie_name):
-    if movie_name not in pt.index:
-        matches = get_close_matches(movie_name, pt.index, n=5, cutoff=0.5)
-        return matches  # return close matches (may be empty list)
 
-    index = int(np.where(pt.index == movie_name)[0][0])
+    movie_name = movie_name.lower().strip()
+
+    # partial movie matching
+    matched_movies = [
+
+        movie for movie in pt.index
+
+        if movie_name in movie.lower()
+
+    ]
+
+    # if no movie found
+    if len(matched_movies) == 0:
+
+        return ["Movie not found in dataset"]
+
+    # first matched movie
+    selected_movie = matched_movies[0]
+
+    # movie index
+    index = np.where(
+        pt.index == selected_movie
+    )[0][0]
+
+    # similarity scores
     similar = sorted(
+
         enumerate(similarity_score[index]),
+
         key=lambda x: x[1],
+
         reverse=True
+
     )[1:6]
 
-    return [f"{i}. {pt.index[movie[0]]}" for i, movie in enumerate(similar, start=1)]
+    # recommendations
+    recommendations = [
+
+        pt.index[movie[0]]
+
+        for movie in similar
+
+    ]
+
+    return recommendations
 
 
 @app.route('/', methods=['GET', 'POST'])
-def home():
-    recommendations = []
-    if request.method == 'POST':
-        movie_name = request.form['movie_name'].strip()
-        result = recommend(movie_name)
-        recommendations = result if result else []
 
-    return render_template('index.html', recommendations=recommendations)
+def home():
+
+    recommendations = []
+
+    if request.method == 'POST':
+
+        movie_name = request.form['movie_name']
+
+        recommendations = recommend(movie_name)
+
+    return render_template(
+
+        'index.html',
+
+        recommendations=recommendations
+
+    )
 
 
 if __name__ == '__main__':
+
     app.run(debug=True)
