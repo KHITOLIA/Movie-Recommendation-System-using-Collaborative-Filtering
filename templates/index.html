@@ -9,16 +9,20 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:       #080810;
-      --sur:      #0f0f1c;
-      --sur2:     #16162a;
-      --bdr:      rgba(255,255,255,0.07);
-      --bdr2:     rgba(255,255,255,0.13);
-      --gold:     #e4c46a;
-      --gold-dim: rgba(228,196,106,0.10);
-      --txt:      #edeae0;
-      --muted:    #6e6c65;
-      --muted2:   #3d3b36;
+      --bg:        #0c0c0e;
+      --sur:       #141418;
+      --sur2:      #1c1c22;
+      --bdr:       rgba(180, 10, 20, 0.18);
+      --bdr2:      rgba(180, 10, 20, 0.4);
+      --red:       #e3161e;
+      --red-dim:   rgba(227, 22, 30, 0.12);
+      --red-glow:  rgba(227, 22, 30, 0.3);
+      --silver:    #c8cdd6;
+      --silver2:   #7a8090;
+      --gold:      #c9a84c;
+      --txt:       #eaedf2;
+      --muted:     #636870;
+      --muted2:    #363840;
     }
 
     html { height: 100%; }
@@ -32,24 +36,43 @@
       flex-direction: column;
       align-items: center;
       padding: 0 1.25rem 6rem;
+      overflow-x: hidden;
     }
 
-    /* Grain */
+    /* Subtle grain */
     body::after {
       content: '';
       position: fixed; inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.022'/%3E%3C/svg%3E");
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.028'/%3E%3C/svg%3E");
       pointer-events: none; z-index: 0;
     }
 
-    /* Gold top bar */
-    .topbar {
-      width: 100%; height: 3px;
-      background: repeating-linear-gradient(90deg, var(--gold) 0 16px, transparent 16px 26px);
-      opacity: 0.55; flex-shrink: 0;
+    /* Radial red glow behind hero */
+    body::before {
+      content: '';
+      position: fixed;
+      top: -180px; left: 50%;
+      transform: translateX(-50%);
+      width: 700px; height: 500px;
+      background: radial-gradient(ellipse at center, rgba(200,10,18,0.13) 0%, transparent 70%);
+      pointer-events: none; z-index: 0;
     }
 
-    .page { position: relative; z-index: 1; width: 100%; max-width: 620px; }
+    /* ── Top bar — red + silver segments ── */
+    .topbar {
+      width: 100%; height: 4px; flex-shrink: 0;
+      background: linear-gradient(90deg,
+        var(--red) 0%, var(--red) 60%,
+        var(--silver) 60%, var(--silver) 75%,
+        var(--gold) 75%, var(--gold) 100%
+      );
+      box-shadow: 0 0 18px rgba(227,22,30,0.55);
+    }
+
+    .page {
+      position: relative; z-index: 1;
+      width: 100%; max-width: 620px;
+    }
 
     /* ── Hero ── */
     .hero {
@@ -58,46 +81,72 @@
     }
 
     .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
       font-size: 10px;
-      letter-spacing: 0.28em;
+      letter-spacing: 0.3em;
       text-transform: uppercase;
-      color: var(--gold);
-      margin-bottom: 0.6rem;
+      color: var(--red);
+      margin-bottom: 0.8rem;
+    }
+
+    .eyebrow::before,
+    .eyebrow::after {
+      content: '';
+      display: block;
+      width: 28px; height: 1px;
+      background: var(--red);
+      opacity: 0.5;
     }
 
     .logo {
       font-family: 'Bebas Neue', sans-serif;
-      font-size: clamp(3.8rem, 11vw, 6.5rem);
+      font-size: clamp(3.8rem, 11vw, 6.8rem);
       line-height: 0.9;
-      letter-spacing: 0.03em;
-      color: var(--txt);
+      letter-spacing: 0.04em;
+      /* Silver-to-white gradient text */
+      background: linear-gradient(160deg, #ffffff 0%, #c8cdd6 45%, #8a9099 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 0 22px rgba(227,22,30,0.25));
     }
-    .logo em { color: var(--gold); font-style: normal; }
+
+    .logo em {
+      font-style: normal;
+      background: linear-gradient(160deg, #ff3c3c 0%, #e3161e 50%, #9a0010 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 0 14px rgba(227,22,30,0.6));
+    }
 
     .sub {
-      margin-top: 0.9rem;
+      margin-top: 1rem;
       font-size: 13px;
       font-weight: 300;
-      color: var(--muted);
-      letter-spacing: 0.05em;
+      color: var(--silver2);
+      letter-spacing: 0.06em;
     }
 
     /* ── Search bar ── */
-    .search-wrap {
-      margin-top: 2.5rem;
-    }
+    .search-wrap { margin-top: 2.5rem; }
 
     form {
       display: flex;
       align-items: center;
       background: var(--sur);
-      border: 0.5px solid var(--bdr);
-      border-radius: 14px;
+      border: 1px solid var(--bdr);
+      border-radius: 12px;
       overflow: hidden;
-      transition: border-color 0.2s;
+      transition: border-color 0.2s, box-shadow 0.2s;
     }
 
-    form:focus-within { border-color: var(--gold); }
+    form:focus-within {
+      border-color: var(--red);
+      box-shadow: 0 0 0 3px rgba(227,22,30,0.12), 0 0 20px rgba(227,22,30,0.08);
+    }
 
     form input[type="text"] {
       flex: 1;
@@ -117,24 +166,30 @@
     .search-btn {
       flex-shrink: 0;
       height: 56px;
-      padding: 0 1.5rem;
-      background: var(--gold);
-      color: #080810;
+      padding: 0 1.6rem;
+      background: var(--red);
+      background: linear-gradient(135deg, #ff2d2d 0%, #c0000a 100%);
+      color: #fff;
       font-family: 'DM Sans', sans-serif;
-      font-size: 13px;
-      font-weight: 500;
-      letter-spacing: 0.08em;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
       text-transform: uppercase;
       border: none;
       cursor: pointer;
-      transition: opacity 0.15s, transform 0.1s;
+      transition: opacity 0.15s, transform 0.1s, box-shadow 0.15s;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.12);
     }
-    .search-btn:hover  { opacity: 0.85; }
+
+    .search-btn:hover {
+      opacity: 0.9;
+      box-shadow: 0 0 14px rgba(227,22,30,0.45), inset 0 1px 0 rgba(255,255,255,0.12);
+    }
     .search-btn:active { transform: scale(0.97); }
 
-    /* ── No-match notice (inline, not a box) ── */
+    /* ── No-match ── */
     .no-match {
-      margin-top: 1.5rem;
+      margin-top: 1.4rem;
       text-align: center;
       font-size: 13px;
       color: var(--muted);
@@ -150,20 +205,21 @@
       justify-content: space-between;
       margin-bottom: 1.1rem;
       padding-bottom: 0.75rem;
-      border-bottom: 0.5px solid var(--bdr);
+      border-bottom: 1px solid rgba(180,10,20,0.15);
     }
 
     .results-label {
       font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.35rem;
-      letter-spacing: 0.06em;
-      color: var(--txt);
+      font-size: 1.4rem;
+      letter-spacing: 0.08em;
+      color: var(--silver);
     }
 
     .results-query {
       font-size: 12px;
-      color: var(--muted);
+      color: var(--red);
       font-style: italic;
+      letter-spacing: 0.02em;
     }
 
     /* Cards */
@@ -175,14 +231,35 @@
       gap: 1rem;
       padding: 0.9rem 1.1rem;
       background: var(--sur);
-      border: 0.5px solid var(--bdr);
+      border: 1px solid var(--bdr);
       border-radius: 10px;
       opacity: 0;
       transform: translateY(10px);
       animation: rise 0.32s ease forwards;
-      transition: background 0.18s, border-color 0.18s;
+      transition: background 0.18s, border-color 0.18s, box-shadow 0.18s;
+      position: relative;
+      overflow: hidden;
     }
-    .movie-card:hover { background: var(--sur2); border-color: var(--bdr2); }
+
+    /* Subtle left-edge red accent bar */
+    .movie-card::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 20%; bottom: 20%;
+      width: 2px;
+      background: var(--red);
+      border-radius: 2px;
+      opacity: 0;
+      transition: opacity 0.18s;
+    }
+
+    .movie-card:hover {
+      background: var(--sur2);
+      border-color: var(--bdr2);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.35), 0 0 0 0 transparent;
+    }
+
+    .movie-card:hover::before { opacity: 1; }
 
     .movie-card:nth-child(1) { animation-delay: 0.04s; }
     .movie-card:nth-child(2) { animation-delay: 0.09s; }
@@ -197,17 +274,18 @@
     .num {
       font-family: 'Bebas Neue', sans-serif;
       font-size: 1.1rem;
-      color: var(--gold);
-      min-width: 28px;
+      color: var(--red);
+      min-width: 26px;
       text-align: right;
       letter-spacing: 0.04em;
       flex-shrink: 0;
+      text-shadow: 0 0 10px rgba(227,22,30,0.4);
     }
 
     .sep {
-      width: 0.5px;
-      height: 28px;
-      background: var(--bdr);
+      width: 1px;
+      height: 26px;
+      background: rgba(180,10,20,0.2);
       flex-shrink: 0;
     }
 
@@ -215,11 +293,16 @@
       flex: 1;
       font-size: 14px;
       font-weight: 400;
-      color: var(--txt);
+      color: var(--silver);
       letter-spacing: 0.01em;
     }
 
-    .star { font-size: 11px; color: var(--muted2); flex-shrink: 0; }
+    .star {
+      font-size: 11px;
+      color: var(--gold);
+      flex-shrink: 0;
+      opacity: 0.8;
+    }
 
     /* ── Footer ── */
     .foot {
@@ -230,17 +313,20 @@
       align-items: center;
       gap: 0.75rem;
     }
+
     .foot p {
       font-size: 11px;
       color: var(--muted2);
-      letter-spacing: 0.1em;
+      letter-spacing: 0.12em;
       text-transform: uppercase;
     }
+
     .foot-links {
       display: flex;
       align-items: center;
       gap: 0.75rem;
     }
+
     .foot-links a {
       display: flex;
       align-items: center;
@@ -251,8 +337,9 @@
       letter-spacing: 0.04em;
       transition: color 0.15s;
     }
-    .foot-links a:hover { color: var(--gold); }
-    .foot-dot { color: var(--muted2); font-size: 12px; }
+
+    .foot-links a:hover { color: var(--red); }
+    .foot-dot { color: var(--muted2); font-size: 14px; }
   </style>
 </head>
 <body>
@@ -261,7 +348,7 @@
   <div class="page">
 
     <div class="hero">
-      <p class="eyebrow">Collaborative filtering</p>
+      <p class="eyebrow">Collaborative Filtering</p>
       <h1 class="logo">CINE<em>MATCH</em></h1>
       <p class="sub">Enter a film you love — get five worth watching next.</p>
     </div>
@@ -271,7 +358,7 @@
         <input
           type="text"
           name="movie_name"
-          placeholder="e.g. Inception, The Godfather…"
+          placeholder="e.g. Avengers, Inception…"
           value="{{ request.form.get('movie_name', '') }}"
           autofocus
           required
@@ -308,16 +395,17 @@
       <p>CineMatch &mdash; powered by collaborative filtering</p>
       <div class="foot-links">
         <a href="https://github.com/KHITOLIA/Movie-Recommendation-System-using-Collaborative-Filtering" target="_blank" rel="noopener">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.009-.868-.013-1.703-2.782.604-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.463-1.11-1.463-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0 1 12 6.836a9.59 9.59 0 0 1 2.504.337c1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.202 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.744 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.009-.868-.013-1.703-2.782.604-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.463-1.11-1.463-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0 1 12 6.836a9.59 9.59 0 0 1 2.504.337c1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.202 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.744 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg>
           GitHub
         </a>
         <span class="foot-dot">·</span>
         <a href="https://www.linkedin.com/in/tushar-khitoliya" target="_blank" rel="noopener">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
           LinkedIn
         </a>
       </div>
     </div>
+
   </div>
 </body>
 </html>
