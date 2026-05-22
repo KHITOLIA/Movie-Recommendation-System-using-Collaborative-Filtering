@@ -4,508 +4,489 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>CineMatch</title>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&family=Share+Tech+Mono&display=swap" rel="stylesheet">
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
-    :root {
-      --bg:       #0c0c0e;
-      --sur:      #141418;
-      --sur2:     #1c1c22;
-      --bdr:      rgba(180,10,20,0.18);
-      --bdr2:     rgba(180,10,20,0.4);
-      --red:      #e3161e;
-      --silver:   #c8cdd6;
-      --silver2:  #7a8090;
-      --gold:     #c9a84c;
-      --txt:      #eaedf2;
-      --muted:    #636870;
-      --muted2:   #363840;
+    :root{
+      --bg:#08080b;
+      --sur:#111116;
+      --sur2:#18181f;
+      --red:#e3161e;
+      --red2:#ff2d2d;
+      --gold:#c9a84c;
+      --silver:#c2c8d4;
+      --silver2:#6a7080;
+      --txt:#eaedf2;
+      --muted:#454850;
+      --mono:'Share Tech Mono',monospace;
     }
 
-    html { height: 100%; }
+    html,body{height:100%}
 
-    body {
-      min-height: 100vh;
-      background: var(--bg);
-      color: var(--txt);
-      font-family: 'DM Sans', sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 0 1.25rem 6rem;
-      overflow-x: hidden;
+    body{
+      background:var(--bg);
+      color:var(--txt);
+      font-family:'DM Sans',sans-serif;
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      overflow-x:hidden;
     }
 
-    /* ── Particle canvas ── */
-    #particles {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: 0;
+    /* ═══════════════════════════════════════
+       INTRO SPLASH — Marvel-style flip blocks
+    ═══════════════════════════════════════ */
+    #intro{
+      position:fixed;inset:0;
+      background:#000;
+      display:flex;align-items:center;justify-content:center;
+      z-index:999;
+      transition:opacity 0.5s ease, visibility 0.5s;
+    }
+    #intro.done{opacity:0;visibility:hidden;pointer-events:none}
+
+    .flip-grid{
+      display:grid;
+      grid-template-columns:repeat(9,48px);
+      gap:5px;
     }
 
-    /* Radial glow */
-    .glow-orb {
-      position: fixed;
-      top: -200px; left: 50%;
-      transform: translateX(-50%);
-      width: 800px; height: 600px;
-      background: radial-gradient(ellipse, rgba(200,10,18,0.11) 0%, transparent 68%);
-      pointer-events: none; z-index: 0;
-      animation: orbPulse 6s ease-in-out infinite;
+    .flip-block{
+      width:48px;height:36px;
+      background:var(--red);
+      border-radius:3px;
+      transform:scaleX(1);
+      animation:flipBlock 0.18s ease forwards;
+      animation-play-state:paused;
     }
 
-    @keyframes orbPulse {
-      0%, 100% { opacity: 0.7; transform: translateX(-50%) scale(1); }
-      50%       { opacity: 1;   transform: translateX(-50%) scale(1.08); }
+    @keyframes flipBlock{
+      0%  {transform:scaleX(1);background:var(--red)}
+      50% {transform:scaleX(0);background:var(--red)}
+      100%{transform:scaleX(0);background:#000}
     }
 
-    /* ── Top bar ── */
-    .topbar {
-      width: 100%; height: 4px; flex-shrink: 0; position: relative; z-index: 2;
-      background: linear-gradient(90deg, var(--red) 0% 60%, var(--silver) 60% 75%, var(--gold) 75% 100%);
-      box-shadow: 0 0 22px rgba(227,22,30,0.65);
-      animation: barShimmer 3s ease-in-out infinite;
+    /* Marvel logo shown mid-intro */
+    .intro-logo{
+      position:absolute;
+      font-family:'Bebas Neue',sans-serif;
+      font-size:clamp(2.5rem,8vw,4.5rem);
+      letter-spacing:0.18em;
+      background:linear-gradient(160deg,#fff 0%,#c8cdd6 50%,#8a9099 100%);
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+      background-clip:text;
+      opacity:0;
+      animation:introLogo 0.3s 0.6s ease forwards;
     }
 
-    @keyframes barShimmer {
-      0%, 100% { box-shadow: 0 0 22px rgba(227,22,30,0.65); }
-      50%       { box-shadow: 0 0 36px rgba(227,22,30,0.95); }
+    @keyframes introLogo{
+      from{opacity:0;letter-spacing:0.3em}
+      to  {opacity:1;letter-spacing:0.18em}
     }
 
-    .page {
-      position: relative; z-index: 1;
-      width: 100%; max-width: 620px;
+    /* ═══════════════════════════════════════
+       HUD GRID BACKGROUND
+    ═══════════════════════════════════════ */
+    .hud-bg{
+      position:fixed;inset:0;pointer-events:none;z-index:0;
+      background-image:
+        linear-gradient(rgba(227,22,30,0.04) 1px,transparent 1px),
+        linear-gradient(90deg,rgba(227,22,30,0.04) 1px,transparent 1px);
+      background-size:48px 48px;
+      mask-image:radial-gradient(ellipse 80% 70% at 50% 30%,black 0%,transparent 100%);
+      animation:gridPulse 4s ease-in-out infinite;
     }
 
-    /* ── Hero ── */
-    .hero {
-      padding: 4.5rem 0 3rem;
-      text-align: center;
+    @keyframes gridPulse{
+      0%,100%{opacity:0.6}50%{opacity:1}
     }
 
-    .eyebrow {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 10px;
-      letter-spacing: 0.3em;
-      text-transform: uppercase;
-      color: var(--red);
-      margin-bottom: 0.8rem;
-      opacity: 0;
-      animation: fadeUp 0.6s 0.1s ease forwards;
+    /* ═══════════════════════════════════════
+       TOP STRIPE
+    ═══════════════════════════════════════ */
+    .topbar{
+      width:100%;flex-shrink:0;position:relative;z-index:2;
+      height:3px;
+      background:linear-gradient(90deg,var(--red) 0% 62%,var(--silver) 62% 76%,var(--gold) 76% 100%);
+      animation:topGlow 3s ease-in-out infinite;
     }
 
-    .eyebrow::before, .eyebrow::after {
-      content: '';
-      display: block;
-      width: 28px; height: 1px;
-      background: var(--red); opacity: 0.5;
+    @keyframes topGlow{
+      0%,100%{box-shadow:0 0 16px rgba(227,22,30,0.5)}
+      50%    {box-shadow:0 0 32px rgba(227,22,30,0.9),0 0 60px rgba(227,22,30,0.3)}
     }
 
-    /* Logo letter-by-letter reveal */
-    .logo {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: clamp(3.8rem, 11vw, 6.8rem);
-      line-height: 0.9;
-      letter-spacing: 0.04em;
-      display: block;
-      cursor: default;
+    /* ═══════════════════════════════════════
+       PAGE WRAPPER
+    ═══════════════════════════════════════ */
+    .page{
+      position:relative;z-index:1;
+      width:100%;max-width:640px;
+      padding:0 1.25rem 6rem;
     }
 
-    .logo .word-cine {
-      background: linear-gradient(160deg, #fff 0%, #c8cdd6 45%, #8a9099 100%);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      background-clip: text;
-      filter: drop-shadow(0 0 22px rgba(227,22,30,0.25));
+    /* ═══════════════════════════════════════
+       HERO
+    ═══════════════════════════════════════ */
+    .hero{padding:4rem 0 2.5rem;text-align:center}
+
+    .eyebrow{
+      font-family:var(--mono);
+      font-size:10px;letter-spacing:0.28em;
+      text-transform:uppercase;color:var(--red);
+      margin-bottom:1rem;
+      display:flex;align-items:center;justify-content:center;gap:10px;
+      opacity:0;animation:fadeUp 0.5s 0.2s ease forwards;
     }
 
-    .logo .word-match {
-      font-style: normal;
-      background: linear-gradient(160deg, #ff3c3c 0%, #e3161e 50%, #9a0010 100%);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      background-clip: text;
-      filter: drop-shadow(0 0 14px rgba(227,22,30,0.6));
+    .eyebrow span{
+      display:inline-block;
+      width:0;overflow:hidden;white-space:nowrap;
+      animation:typeIn 1s 0.4s steps(22,end) forwards;
     }
 
-    .logo .letter {
-      display: inline-block;
-      opacity: 0;
-      transform: translateY(-24px) rotateX(60deg);
-      animation: letterDrop 0.4s cubic-bezier(0.22,1,0.36,1) forwards;
+    @keyframes typeIn{to{width:22ch}}
+
+    .eyebrow::before,.eyebrow::after{
+      content:'';flex:1;max-width:60px;height:1px;
+      background:linear-gradient(90deg,transparent,var(--red));
+      opacity:0.5;
+    }
+    .eyebrow::after{transform:scaleX(-1)}
+
+    /* Glitch logo */
+    .logo-wrap{
+      position:relative;display:inline-block;cursor:default;
+      opacity:0;animation:fadeUp 0.6s 0.3s ease forwards;
     }
 
-    @keyframes letterDrop {
-      to { opacity: 1; transform: translateY(0) rotateX(0); }
+    .logo{
+      font-family:'Bebas Neue',sans-serif;
+      font-size:clamp(4rem,12vw,7.5rem);
+      line-height:0.88;letter-spacing:0.04em;
+      background:linear-gradient(160deg,#fff 0%,#c8cdd6 45%,#8a9099 100%);
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+      position:relative;
     }
 
-    /* Hover shake on logo */
-    .logo:hover .letter {
-      animation: letterShake 0.35s ease;
+    .logo em{
+      font-style:normal;
+      background:linear-gradient(160deg,#ff4444 0%,#e3161e 50%,#8a000a 100%);
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+      filter:drop-shadow(0 0 18px rgba(227,22,30,0.7));
     }
 
-    @keyframes letterShake {
-      0%,100% { transform: translateY(0); }
-      25%      { transform: translateY(-4px); }
-      75%      { transform: translateY(2px); }
+    /* Glitch layers */
+    .logo-wrap::before,.logo-wrap::after{
+      content:attr(data-text);
+      font-family:'Bebas Neue',sans-serif;
+      font-size:clamp(4rem,12vw,7.5rem);
+      line-height:0.88;letter-spacing:0.04em;
+      position:absolute;top:0;left:0;
+      -webkit-text-fill-color:transparent;
+      background-clip:text;-webkit-background-clip:text;
+      opacity:0;pointer-events:none;
     }
 
-    .sub {
-      margin-top: 1rem;
-      font-size: 13px;
-      font-weight: 300;
-      color: var(--silver2);
-      letter-spacing: 0.06em;
-      opacity: 0;
-      animation: fadeUp 0.6s 0.85s ease forwards;
+    .logo-wrap::before{
+      background:linear-gradient(160deg,#ff3c3c,#e3161e);
+      clip-path:polygon(0 30%,100% 30%,100% 50%,0 50%);
+      animation:glitch1 6s 2s ease-in-out infinite;
     }
 
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(10px); }
-      to   { opacity: 1; transform: translateY(0); }
+    .logo-wrap::after{
+      background:linear-gradient(160deg,#4488ff,#0044cc);
+      clip-path:polygon(0 60%,100% 60%,100% 75%,0 75%);
+      animation:glitch2 6s 2.1s ease-in-out infinite;
     }
 
-    /* ── Search bar ── */
-    .search-wrap {
-      margin-top: 2.5rem;
-      opacity: 0;
-      animation: fadeUp 0.6s 1s ease forwards;
+    @keyframes glitch1{
+      0%,90%,100%{opacity:0;transform:translate(0)}
+      91%{opacity:0.7;transform:translate(-3px,1px)}
+      93%{opacity:0.7;transform:translate(3px,-1px)}
+      95%{opacity:0;transform:translate(0)}
     }
 
-    form {
-      display: flex;
-      align-items: center;
-      background: var(--sur);
-      border: 1px solid var(--bdr);
-      border-radius: 12px;
-      overflow: hidden;
-      transition: border-color 0.25s, box-shadow 0.25s;
-      position: relative;
+    @keyframes glitch2{
+      0%,90%,100%{opacity:0;transform:translate(0)}
+      92%{opacity:0.5;transform:translate(3px,0)}
+      94%{opacity:0.5;transform:translate(-2px,1px)}
+      96%{opacity:0;transform:translate(0)}
     }
 
-    form:focus-within {
-      border-color: var(--red);
-      box-shadow: 0 0 0 3px rgba(227,22,30,0.12), 0 0 24px rgba(227,22,30,0.1);
+    .sub{
+      margin-top:1rem;font-size:13px;font-weight:300;
+      color:var(--silver2);letter-spacing:0.06em;
+      opacity:0;animation:fadeUp 0.5s 0.6s ease forwards;
     }
 
-    /* Scan-line sweep on focus */
-    form::after {
-      content: '';
-      position: absolute;
-      top: 0; left: -100%;
-      width: 60%; height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(227,22,30,0.06), transparent);
-      transition: none;
-      pointer-events: none;
+    @keyframes fadeUp{
+      from{opacity:0;transform:translateY(8px)}
+      to  {opacity:1;transform:translateY(0)}
     }
 
-    form:focus-within::after {
-      animation: scanLine 1.8s ease forwards;
+    /* ═══════════════════════════════════════
+       SEARCH
+    ═══════════════════════════════════════ */
+    .search-wrap{
+      margin-top:2.5rem;
+      opacity:0;animation:fadeUp 0.5s 0.8s ease forwards;
     }
 
-    @keyframes scanLine {
-      from { left: -60%; }
-      to   { left: 140%; }
+    form{
+      display:flex;align-items:center;
+      background:var(--sur);
+      border:1px solid rgba(227,22,30,0.2);
+      border-radius:10px;overflow:hidden;
+      position:relative;
+      transition:border-color 0.2s,box-shadow 0.2s;
     }
 
-    form input[type="text"] {
-      flex: 1;
-      background: transparent;
-      border: none;
-      outline: none;
-      padding: 0 1.25rem;
-      height: 56px;
-      font-size: 15px;
-      font-family: 'DM Sans', sans-serif;
-      color: var(--txt);
-      min-width: 0;
+    form:focus-within{
+      border-color:var(--red);
+      box-shadow:0 0 0 3px rgba(227,22,30,0.1),0 0 30px rgba(227,22,30,0.08);
     }
 
-    form input[type="text"]::placeholder { color: var(--muted2); }
+    /* Corner accents */
+    form::before,form::after{
+      content:'';position:absolute;
+      width:10px;height:10px;
+      border-color:var(--red);border-style:solid;
+      opacity:0;transition:opacity 0.2s;
+      pointer-events:none;
+    }
+    form::before{top:-1px;left:-1px;border-width:2px 0 0 2px;border-radius:2px 0 0 0}
+    form::after {bottom:-1px;right:-1px;border-width:0 2px 2px 0;border-radius:0 0 2px 0}
+    form:focus-within::before,form:focus-within::after{opacity:1}
 
-    .search-btn {
-      flex-shrink: 0;
-      height: 56px;
-      padding: 0 1.6rem;
-      background: linear-gradient(135deg, #ff2d2d 0%, #c0000a 100%);
-      color: #fff;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 12px;
-      font-weight: 600;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      border: none;
-      cursor: pointer;
-      position: relative;
-      overflow: hidden;
-      transition: box-shadow 0.2s, transform 0.1s;
+    form input[type="text"]{
+      flex:1;background:transparent;border:none;outline:none;
+      padding:0 1.25rem;height:56px;
+      font-size:15px;font-family:'DM Sans',sans-serif;
+      color:var(--txt);min-width:0;
     }
 
-    /* Ripple */
-    .search-btn::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(circle at center, rgba(255,255,255,0.25) 0%, transparent 70%);
-      opacity: 0;
-      transform: scale(0);
-      transition: transform 0.4s ease, opacity 0.4s ease;
+    form input::placeholder{color:var(--muted)}
+
+    /* Arc-reactor button */
+    .search-btn{
+      flex-shrink:0;height:56px;padding:0 1.6rem;
+      background:linear-gradient(135deg,#ff2d2d 0%,#b0000a 100%);
+      color:#fff;
+      font-family:'DM Sans',sans-serif;font-size:12px;
+      font-weight:600;letter-spacing:0.12em;text-transform:uppercase;
+      border:none;cursor:pointer;position:relative;overflow:hidden;
+      transition:box-shadow 0.2s,transform 0.1s;
     }
 
-    .search-btn:hover {
-      box-shadow: 0 0 18px rgba(227,22,30,0.55);
+    .search-btn::before{
+      content:'';position:absolute;inset:0;
+      background:conic-gradient(from 0deg,transparent 0deg,rgba(255,255,255,0.15) 60deg,transparent 120deg);
+      animation:arcSpin 1.5s linear infinite;
+      opacity:0;transition:opacity 0.2s;
     }
 
-    .search-btn:active::after {
-      opacity: 1;
-      transform: scale(2.5);
-      transition: none;
+    .search-btn:hover::before{opacity:1}
+    .search-btn:hover{box-shadow:0 0 20px rgba(227,22,30,0.6)}
+    .search-btn:active{transform:scale(0.97)}
+
+    @keyframes arcSpin{to{transform:rotate(360deg)}}
+
+    .search-btn.loading .btn-text{opacity:0}
+    .search-btn.loading::after{
+      content:'';position:absolute;inset:0;margin:auto;
+      width:18px;height:18px;
+      border:2px solid rgba(255,255,255,0.3);
+      border-top-color:#fff;border-radius:50%;
+      animation:spin 0.7s linear infinite;
+    }
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* ═══════════════════════════════════════
+       NO MATCH
+    ═══════════════════════════════════════ */
+    .no-match{
+      margin-top:1.25rem;text-align:center;
+      font-family:var(--mono);font-size:12px;
+      color:var(--red);letter-spacing:0.06em;
+      animation:fadeUp 0.3s ease forwards;
     }
 
-    .search-btn:active { transform: scale(0.97); }
+    .no-match::before{content:'// '}
 
-    /* Loading spinner inside button */
-    .search-btn.loading .btn-text { opacity: 0; }
-    .search-btn.loading::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      margin: auto;
-      width: 18px; height: 18px;
-      border: 2px solid rgba(255,255,255,0.3);
-      border-top-color: #fff;
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
+    /* ═══════════════════════════════════════
+       RESULTS
+    ═══════════════════════════════════════ */
+    .results{margin-top:3rem}
+
+    .results-head{
+      display:flex;align-items:baseline;justify-content:space-between;
+      margin-bottom:1rem;padding-bottom:0.75rem;
+      border-bottom:1px solid rgba(227,22,30,0.12);
+      opacity:0;animation:fadeUp 0.4s 0.05s ease forwards;
     }
 
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* ── No-match ── */
-    .no-match {
-      margin-top: 1.4rem;
-      text-align: center;
-      font-size: 13px;
-      color: var(--muted);
-      letter-spacing: 0.02em;
-      animation: fadeUp 0.4s ease forwards;
+    .results-label{
+      font-family:'Bebas Neue',sans-serif;
+      font-size:1.35rem;letter-spacing:0.08em;color:var(--silver);
     }
 
-    /* ── Results ── */
-    .results { margin-top: 3rem; }
-
-    .results-head {
-      display: flex;
-      align-items: baseline;
-      justify-content: space-between;
-      margin-bottom: 1.1rem;
-      padding-bottom: 0.75rem;
-      border-bottom: 1px solid rgba(180,10,20,0.15);
-      opacity: 0;
-      animation: fadeUp 0.5s 0.1s ease forwards;
+    .results-query{
+      font-family:var(--mono);font-size:11px;
+      color:var(--red);letter-spacing:0.04em;
     }
 
-    .results-label {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.4rem;
-      letter-spacing: 0.08em;
-      color: var(--silver);
+    /* ── Cards ── */
+    .movie-list{list-style:none;display:flex;flex-direction:column;gap:8px}
+
+    .movie-card{
+      display:flex;align-items:center;gap:1rem;
+      padding:0.9rem 1.1rem;
+      background:var(--sur);
+      border:1px solid rgba(227,22,30,0.12);
+      border-radius:8px;
+      position:relative;overflow:hidden;
+      cursor:default;
+      opacity:0;
+      clip-path:inset(0 100% 0 0);
+      animation:wipeIn 0.5s cubic-bezier(0.22,1,0.36,1) forwards;
+      transition:background 0.2s,border-color 0.2s,box-shadow 0.2s,transform 0.2s;
     }
 
-    .results-query {
-      font-size: 12px;
-      color: var(--red);
-      font-style: italic;
+    @keyframes wipeIn{
+      to{opacity:1;clip-path:inset(0 0% 0 0)}
     }
 
-    /* Cards */
-    .movie-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+    .movie-card:nth-child(1){animation-delay:0.08s}
+    .movie-card:nth-child(2){animation-delay:0.16s}
+    .movie-card:nth-child(3){animation-delay:0.24s}
+    .movie-card:nth-child(4){animation-delay:0.32s}
+    .movie-card:nth-child(5){animation-delay:0.40s}
 
-    .movie-card {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      padding: 0.9rem 1.1rem;
-      background: var(--sur);
-      border: 1px solid var(--bdr);
-      border-radius: 10px;
-      opacity: 0;
-      transform: translateX(-18px);
-      animation: slideRight 0.4s cubic-bezier(0.22,1,0.36,1) forwards;
-      transition: background 0.18s, border-color 0.2s, box-shadow 0.2s, transform 0.2s;
-      position: relative;
-      overflow: hidden;
-      cursor: default;
+    /* HUD corner brackets */
+    .movie-card::before,.movie-card::after{
+      content:'';position:absolute;
+      width:8px;height:8px;
+      border-color:var(--red);border-style:solid;
+      opacity:0;transition:opacity 0.2s;pointer-events:none;
+    }
+    .movie-card::before{top:4px;left:4px;border-width:1.5px 0 0 1.5px}
+    .movie-card::after {bottom:4px;right:4px;border-width:0 1.5px 1.5px 0}
+
+    .movie-card:hover{
+      background:var(--sur2);
+      border-color:rgba(227,22,30,0.35);
+      box-shadow:0 4px 28px rgba(0,0,0,0.5),0 0 0 1px rgba(227,22,30,0.08);
+      transform:translateY(-1px);
     }
 
-    /* Shimmer sweep on hover */
-    .movie-card::after {
-      content: '';
-      position: absolute;
-      top: 0; left: -80%;
-      width: 50%; height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent);
-      transition: left 0.5s ease;
-      pointer-events: none;
+    .movie-card:hover::before,.movie-card:hover::after{opacity:1}
+
+    /* Scan line on hover */
+    .movie-card .scan{
+      position:absolute;left:0;top:0;
+      width:100%;height:2px;
+      background:linear-gradient(90deg,transparent,rgba(227,22,30,0.5),transparent);
+      transform:translateY(-4px);
+      opacity:0;transition:none;
+      pointer-events:none;
+    }
+    .movie-card:hover .scan{
+      opacity:1;
+      animation:scanDown 0.5s ease forwards;
+    }
+    @keyframes scanDown{
+      from{transform:translateY(0)}
+      to  {transform:translateY(52px);opacity:0}
     }
 
-    .movie-card:hover::after { left: 140%; }
+    .num{
+      font-family:'Bebas Neue',sans-serif;font-size:1.15rem;
+      color:var(--red);min-width:24px;text-align:center;
+      flex-shrink:0;
+      text-shadow:0 0 12px rgba(227,22,30,0.5);
+      transition:text-shadow 0.2s;
+    }
+    .movie-card:hover .num{text-shadow:0 0 20px rgba(227,22,30,0.9)}
 
-    /* Left red bar */
-    .movie-card::before {
-      content: '';
-      position: absolute;
-      left: 0; top: 15%; bottom: 15%;
-      width: 2px;
-      background: linear-gradient(to bottom, transparent, var(--red), transparent);
-      border-radius: 2px;
-      opacity: 0;
-      transition: opacity 0.2s;
+    .sep{width:1px;height:24px;background:rgba(227,22,30,0.15);flex-shrink:0}
+
+    .title{
+      flex:1;font-size:14px;font-weight:400;
+      color:var(--silver);letter-spacing:0.01em;
+      transition:color 0.2s,letter-spacing 0.2s;
+    }
+    .movie-card:hover .title{color:#fff;letter-spacing:0.03em}
+
+    .star{
+      font-size:12px;color:var(--gold);flex-shrink:0;opacity:0.7;
+      transition:transform 0.35s cubic-bezier(0.34,1.56,0.64,1),opacity 0.2s;
+    }
+    .movie-card:hover .star{transform:rotate(72deg) scale(1.4);opacity:1}
+
+    /* ═══════════════════════════════════════
+       FOOTER
+    ═══════════════════════════════════════ */
+    .foot{
+      margin-top:4rem;text-align:center;
+      display:flex;flex-direction:column;align-items:center;gap:0.75rem;
+      opacity:0;animation:fadeUp 0.5s 1s ease forwards;
     }
 
-    .movie-card:hover {
-      background: var(--sur2);
-      border-color: var(--bdr2);
-      box-shadow: 0 4px 24px rgba(0,0,0,0.4), 0 0 12px rgba(227,22,30,0.08);
-      transform: translateX(4px);
+    .foot p{
+      font-family:var(--mono);font-size:10px;
+      color:var(--muted);letter-spacing:0.14em;text-transform:uppercase;
     }
 
-    .movie-card:hover::before { opacity: 1; }
+    .foot-links{display:flex;align-items:center;gap:0.75rem}
 
-    .movie-card:nth-child(1) { animation-delay: 0.06s; }
-    .movie-card:nth-child(2) { animation-delay: 0.13s; }
-    .movie-card:nth-child(3) { animation-delay: 0.20s; }
-    .movie-card:nth-child(4) { animation-delay: 0.27s; }
-    .movie-card:nth-child(5) { animation-delay: 0.34s; }
-
-    @keyframes slideRight {
-      to { opacity: 1; transform: translateX(0); }
+    .foot-links a{
+      display:flex;align-items:center;gap:6px;
+      font-size:12px;color:var(--silver2);text-decoration:none;
+      letter-spacing:0.04em;
+      padding:5px 10px;border:1px solid transparent;border-radius:6px;
+      transition:color 0.2s,border-color 0.2s,box-shadow 0.2s,transform 0.2s;
     }
 
-    .num {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.1rem;
-      color: var(--red);
-      min-width: 26px;
-      text-align: right;
-      letter-spacing: 0.04em;
-      flex-shrink: 0;
-      text-shadow: 0 0 10px rgba(227,22,30,0.45);
+    .foot-links a:hover{
+      color:#fff;border-color:rgba(227,22,30,0.3);
+      box-shadow:0 0 12px rgba(227,22,30,0.15);
+      transform:translateY(-2px);
     }
 
-    .sep {
-      width: 1px; height: 26px;
-      background: rgba(180,10,20,0.22);
-      flex-shrink: 0;
-    }
-
-    .title {
-      flex: 1;
-      font-size: 14px;
-      font-weight: 400;
-      color: var(--silver);
-      letter-spacing: 0.01em;
-      transition: color 0.18s;
-    }
-
-    .movie-card:hover .title { color: #fff; }
-
-    .star {
-      font-size: 11px;
-      color: var(--gold);
-      flex-shrink: 0;
-      opacity: 0.8;
-      transition: transform 0.3s, opacity 0.3s;
-    }
-
-    .movie-card:hover .star {
-      transform: scale(1.4) rotate(20deg);
-      opacity: 1;
-    }
-
-    /* ── Footer ── */
-    .foot {
-      margin-top: 4rem;
-      text-align: center;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.75rem;
-      opacity: 0;
-      animation: fadeUp 0.6s 1.2s ease forwards;
-    }
-
-    .foot p {
-      font-size: 11px;
-      color: var(--muted2);
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-    }
-
-    .foot-links {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
-
-    .foot-links a {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 12px;
-      color: var(--muted);
-      text-decoration: none;
-      letter-spacing: 0.04em;
-      transition: color 0.2s, transform 0.2s;
-    }
-
-    .foot-links a:hover {
-      color: var(--red);
-      transform: translateY(-2px);
-    }
-
-    .foot-dot { color: var(--muted2); font-size: 14px; }
-
-    /* ── Cursor glow (desktop only) ── */
-    .cursor-glow {
-      position: fixed;
-      width: 320px; height: 320px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(227,22,30,0.06) 0%, transparent 65%);
-      pointer-events: none;
-      z-index: 0;
-      transform: translate(-50%, -50%);
-      transition: left 0.08s, top 0.08s;
-    }
+    .foot-dot{color:var(--muted);font-size:14px}
   </style>
 </head>
 <body>
-  <canvas id="particles"></canvas>
-  <div class="glow-orb"></div>
-  <div class="cursor-glow" id="cursorGlow"></div>
+
+  <!-- ── INTRO SPLASH ── -->
+  <div id="intro">
+    <div class="flip-grid" id="flipGrid"></div>
+    <span class="intro-logo">CINEMATCH</span>
+  </div>
+
+  <div class="hud-bg"></div>
   <div class="topbar"></div>
 
   <div class="page">
 
     <div class="hero">
-      <p class="eyebrow">Collaborative Filtering</p>
-      <h1 class="logo" id="logoEl">
-        <span class="word-cine"></span><span class="word-match"></span>
-      </h1>
+      <p class="eyebrow"><span>Collaborative&nbsp;Filtering</span></p>
+      <div class="logo-wrap" data-text="CINEMATCH">
+        <h1 class="logo">CINE<em>MATCH</em></h1>
+      </div>
       <p class="sub">Enter a film you love — get five worth watching next.</p>
     </div>
 
     <div class="search-wrap">
       <form method="post" autocomplete="off" id="searchForm">
         <input
-          type="text"
-          name="movie_name"
-          id="movieInput"
+          type="text" name="movie_name" id="movieInput"
           placeholder="e.g. Avengers, Inception…"
           value="{{ request.form.get('movie_name', '') }}"
-          autofocus
-          required
+          autofocus required
         />
         <button class="search-btn" type="submit" id="searchBtn">
           <span class="btn-text">Find Films</span>
@@ -526,6 +507,7 @@
       <ul class="movie-list">
         {% for movie in recommendations %}
         <li class="movie-card">
+          <div class="scan"></div>
           {% set parts = movie.split('. ', 1) %}
           <span class="num">{{ parts[0] }}</span>
           <span class="sep"></span>
@@ -538,15 +520,15 @@
     {% endif %}
 
     <div class="foot">
-      <p>CineMatch &mdash; powered by collaborative filtering</p>
+      <p>// CineMatch — powered by collaborative filtering</p>
       <div class="foot-links">
         <a href="https://github.com/KHITOLIA/Movie-Recommendation-System-using-Collaborative-Filtering" target="_blank" rel="noopener">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.009-.868-.013-1.703-2.782.604-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.463-1.11-1.463-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0 1 12 6.836a9.59 9.59 0 0 1 2.504.337c1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.202 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.744 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.009-.868-.013-1.703-2.782.604-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.463-1.11-1.463-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0 1 12 6.836a9.59 9.59 0 0 1 2.504.337c1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.202 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.744 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg>
           GitHub
         </a>
         <span class="foot-dot">·</span>
         <a href="https://www.linkedin.com/in/tushar-khitoliya" target="_blank" rel="noopener">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
           LinkedIn
         </a>
       </div>
@@ -555,113 +537,39 @@
   </div>
 
   <script>
-    // ── 1. Logo letter-by-letter drop-in ──────────────────────────────
-    const CINE  = 'CINE';
-    const MATCH = 'MATCH';
-    const cineEl  = document.querySelector('.word-cine');
-    const matchEl = document.querySelector('.word-match');
+  // ── INTRO: Marvel-style flip-block reveal ──────────────────────────
+  (function(){
+    const grid = document.getElementById('flipGrid');
+    const intro = document.getElementById('intro');
+    const COLS = 9, ROWS = 1;
+    const total = COLS * ROWS;
 
-    [...CINE].forEach((ch, i) => {
-      const s = document.createElement('span');
-      s.className = 'letter';
-      s.textContent = ch;
-      s.style.animationDelay = `${0.25 + i * 0.07}s`;
-      cineEl.appendChild(s);
-    });
-
-    [...MATCH].forEach((ch, i) => {
-      const s = document.createElement('span');
-      s.className = 'letter';
-      s.textContent = ch;
-      s.style.animationDelay = `${0.25 + (CINE.length + i) * 0.07}s`;
-      matchEl.appendChild(s);
-    });
-
-    // ── 2. Particle system ────────────────────────────────────────────
-    const canvas = document.getElementById('particles');
-    const ctx    = canvas.getContext('2d');
-    let W, H, particles = [];
-
-    function resize() {
-      W = canvas.width  = window.innerWidth;
-      H = canvas.height = window.innerHeight;
-    }
-    resize();
-    window.addEventListener('resize', resize);
-
-    class Particle {
-      constructor() { this.reset(true); }
-      reset(initial = false) {
-        this.x  = Math.random() * W;
-        this.y  = initial ? Math.random() * H : H + 10;
-        this.r  = Math.random() * 1.2 + 0.3;
-        this.vy = -(Math.random() * 0.4 + 0.15);
-        this.vx = (Math.random() - 0.5) * 0.15;
-        // mostly white/silver sparks, ~15% red
-        const isRed = Math.random() < 0.15;
-        this.color = isRed
-          ? `rgba(227,22,30,${Math.random() * 0.5 + 0.2})`
-          : `rgba(200,210,220,${Math.random() * 0.35 + 0.08})`;
-        this.life  = 1;
-        this.decay = Math.random() * 0.003 + 0.001;
-      }
-      update() {
-        this.x += this.vx;
-        this.y += this.vy;
-        this.life -= this.decay;
-        if (this.life <= 0 || this.y < -10) this.reset();
-      }
-      draw() {
-        ctx.save();
-        ctx.globalAlpha = this.life;
-        ctx.fillStyle   = this.color;
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
-      }
+    // Build blocks
+    for(let i=0;i<total;i++){
+      const b = document.createElement('div');
+      b.className='flip-block';
+      grid.appendChild(b);
     }
 
-    for (let i = 0; i < 90; i++) particles.push(new Particle());
+    const blocks = grid.querySelectorAll('.flip-block');
 
-    function animParticles() {
-      ctx.clearRect(0, 0, W, H);
-      particles.forEach(p => { p.update(); p.draw(); });
-      requestAnimationFrame(animParticles);
-    }
-    animParticles();
-
-    // ── 3. Cursor glow follow ─────────────────────────────────────────
-    const glow = document.getElementById('cursorGlow');
-    document.addEventListener('mousemove', e => {
-      glow.style.left = e.clientX + 'px';
-      glow.style.top  = e.clientY + 'px';
+    // Stagger flip from left→right then dismiss
+    blocks.forEach((b,i)=>{
+      setTimeout(()=>{
+        b.style.animationPlayState='running';
+      }, i * 55);
     });
 
-    // ── 4. Button loading state on submit ─────────────────────────────
-    const form = document.getElementById('searchForm');
-    const btn  = document.getElementById('searchBtn');
-    form.addEventListener('submit', () => {
-      btn.classList.add('loading');
-    });
+    // Dismiss intro after all blocks flip + logo shows
+    setTimeout(()=>{
+      intro.classList.add('done');
+    }, total * 55 + 700);
+  })();
 
-    // ── 5. Input — typing sparks burst ────────────────────────────────
-    const input = document.getElementById('movieInput');
-    input.addEventListener('input', () => {
-      // burst 4 tiny red sparks at caret position
-      const rect = input.getBoundingClientRect();
-      for (let i = 0; i < 4; i++) {
-        const p = new Particle();
-        p.x  = rect.left + rect.width * 0.55;
-        p.y  = rect.bottom - 4;
-        p.vy = -(Math.random() * 1.5 + 0.8);
-        p.vx = (Math.random() - 0.5) * 1.2;
-        p.r  = Math.random() * 1.5 + 0.5;
-        p.color = `rgba(227,22,30,${Math.random() * 0.7 + 0.3})`;
-        p.decay = 0.025;
-        particles.push(p);
-      }
-    });
+  // ── BUTTON: loading state ──────────────────────────────────────────
+  document.getElementById('searchForm').addEventListener('submit',()=>{
+    document.getElementById('searchBtn').classList.add('loading');
+  });
   </script>
 </body>
 </html>
