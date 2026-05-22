@@ -9,20 +9,18 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:        #0c0c0e;
-      --sur:       #141418;
-      --sur2:      #1c1c22;
-      --bdr:       rgba(180, 10, 20, 0.18);
-      --bdr2:      rgba(180, 10, 20, 0.4);
-      --red:       #e3161e;
-      --red-dim:   rgba(227, 22, 30, 0.12);
-      --red-glow:  rgba(227, 22, 30, 0.3);
-      --silver:    #c8cdd6;
-      --silver2:   #7a8090;
-      --gold:      #c9a84c;
-      --txt:       #eaedf2;
-      --muted:     #636870;
-      --muted2:    #363840;
+      --bg:       #0c0c0e;
+      --sur:      #141418;
+      --sur2:     #1c1c22;
+      --bdr:      rgba(180,10,20,0.18);
+      --bdr2:     rgba(180,10,20,0.4);
+      --red:      #e3161e;
+      --silver:   #c8cdd6;
+      --silver2:  #7a8090;
+      --gold:     #c9a84c;
+      --txt:      #eaedf2;
+      --muted:    #636870;
+      --muted2:   #363840;
     }
 
     html { height: 100%; }
@@ -39,34 +37,41 @@
       overflow-x: hidden;
     }
 
-    /* Subtle grain */
-    body::after {
-      content: '';
-      position: fixed; inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.028'/%3E%3C/svg%3E");
-      pointer-events: none; z-index: 0;
-    }
-
-    /* Radial red glow behind hero */
-    body::before {
-      content: '';
+    /* ── Particle canvas ── */
+    #particles {
       position: fixed;
-      top: -180px; left: 50%;
-      transform: translateX(-50%);
-      width: 700px; height: 500px;
-      background: radial-gradient(ellipse at center, rgba(200,10,18,0.13) 0%, transparent 70%);
-      pointer-events: none; z-index: 0;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
     }
 
-    /* ── Top bar — red + silver segments ── */
+    /* Radial glow */
+    .glow-orb {
+      position: fixed;
+      top: -200px; left: 50%;
+      transform: translateX(-50%);
+      width: 800px; height: 600px;
+      background: radial-gradient(ellipse, rgba(200,10,18,0.11) 0%, transparent 68%);
+      pointer-events: none; z-index: 0;
+      animation: orbPulse 6s ease-in-out infinite;
+    }
+
+    @keyframes orbPulse {
+      0%, 100% { opacity: 0.7; transform: translateX(-50%) scale(1); }
+      50%       { opacity: 1;   transform: translateX(-50%) scale(1.08); }
+    }
+
+    /* ── Top bar ── */
     .topbar {
-      width: 100%; height: 4px; flex-shrink: 0;
-      background: linear-gradient(90deg,
-        var(--red) 0%, var(--red) 60%,
-        var(--silver) 60%, var(--silver) 75%,
-        var(--gold) 75%, var(--gold) 100%
-      );
-      box-shadow: 0 0 18px rgba(227,22,30,0.55);
+      width: 100%; height: 4px; flex-shrink: 0; position: relative; z-index: 2;
+      background: linear-gradient(90deg, var(--red) 0% 60%, var(--silver) 60% 75%, var(--gold) 75% 100%);
+      box-shadow: 0 0 22px rgba(227,22,30,0.65);
+      animation: barShimmer 3s ease-in-out infinite;
+    }
+
+    @keyframes barShimmer {
+      0%, 100% { box-shadow: 0 0 22px rgba(227,22,30,0.65); }
+      50%       { box-shadow: 0 0 36px rgba(227,22,30,0.95); }
     }
 
     .page {
@@ -89,37 +94,62 @@
       text-transform: uppercase;
       color: var(--red);
       margin-bottom: 0.8rem;
+      opacity: 0;
+      animation: fadeUp 0.6s 0.1s ease forwards;
     }
 
-    .eyebrow::before,
-    .eyebrow::after {
+    .eyebrow::before, .eyebrow::after {
       content: '';
       display: block;
       width: 28px; height: 1px;
-      background: var(--red);
-      opacity: 0.5;
+      background: var(--red); opacity: 0.5;
     }
 
+    /* Logo letter-by-letter reveal */
     .logo {
       font-family: 'Bebas Neue', sans-serif;
       font-size: clamp(3.8rem, 11vw, 6.8rem);
       line-height: 0.9;
       letter-spacing: 0.04em;
-      /* Silver-to-white gradient text */
-      background: linear-gradient(160deg, #ffffff 0%, #c8cdd6 45%, #8a9099 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      display: block;
+      cursor: default;
+    }
+
+    .logo .word-cine {
+      background: linear-gradient(160deg, #fff 0%, #c8cdd6 45%, #8a9099 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
       background-clip: text;
       filter: drop-shadow(0 0 22px rgba(227,22,30,0.25));
     }
 
-    .logo em {
+    .logo .word-match {
       font-style: normal;
       background: linear-gradient(160deg, #ff3c3c 0%, #e3161e 50%, #9a0010 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
       background-clip: text;
       filter: drop-shadow(0 0 14px rgba(227,22,30,0.6));
+    }
+
+    .logo .letter {
+      display: inline-block;
+      opacity: 0;
+      transform: translateY(-24px) rotateX(60deg);
+      animation: letterDrop 0.4s cubic-bezier(0.22,1,0.36,1) forwards;
+    }
+
+    @keyframes letterDrop {
+      to { opacity: 1; transform: translateY(0) rotateX(0); }
+    }
+
+    /* Hover shake on logo */
+    .logo:hover .letter {
+      animation: letterShake 0.35s ease;
+    }
+
+    @keyframes letterShake {
+      0%,100% { transform: translateY(0); }
+      25%      { transform: translateY(-4px); }
+      75%      { transform: translateY(2px); }
     }
 
     .sub {
@@ -128,10 +158,21 @@
       font-weight: 300;
       color: var(--silver2);
       letter-spacing: 0.06em;
+      opacity: 0;
+      animation: fadeUp 0.6s 0.85s ease forwards;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
 
     /* ── Search bar ── */
-    .search-wrap { margin-top: 2.5rem; }
+    .search-wrap {
+      margin-top: 2.5rem;
+      opacity: 0;
+      animation: fadeUp 0.6s 1s ease forwards;
+    }
 
     form {
       display: flex;
@@ -140,12 +181,33 @@
       border: 1px solid var(--bdr);
       border-radius: 12px;
       overflow: hidden;
-      transition: border-color 0.2s, box-shadow 0.2s;
+      transition: border-color 0.25s, box-shadow 0.25s;
+      position: relative;
     }
 
     form:focus-within {
       border-color: var(--red);
-      box-shadow: 0 0 0 3px rgba(227,22,30,0.12), 0 0 20px rgba(227,22,30,0.08);
+      box-shadow: 0 0 0 3px rgba(227,22,30,0.12), 0 0 24px rgba(227,22,30,0.1);
+    }
+
+    /* Scan-line sweep on focus */
+    form::after {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%;
+      width: 60%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(227,22,30,0.06), transparent);
+      transition: none;
+      pointer-events: none;
+    }
+
+    form:focus-within::after {
+      animation: scanLine 1.8s ease forwards;
+    }
+
+    @keyframes scanLine {
+      from { left: -60%; }
+      to   { left: 140%; }
     }
 
     form input[type="text"] {
@@ -167,7 +229,6 @@
       flex-shrink: 0;
       height: 56px;
       padding: 0 1.6rem;
-      background: var(--red);
       background: linear-gradient(135deg, #ff2d2d 0%, #c0000a 100%);
       color: #fff;
       font-family: 'DM Sans', sans-serif;
@@ -177,15 +238,49 @@
       text-transform: uppercase;
       border: none;
       cursor: pointer;
-      transition: opacity 0.15s, transform 0.1s, box-shadow 0.15s;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.12);
+      position: relative;
+      overflow: hidden;
+      transition: box-shadow 0.2s, transform 0.1s;
+    }
+
+    /* Ripple */
+    .search-btn::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at center, rgba(255,255,255,0.25) 0%, transparent 70%);
+      opacity: 0;
+      transform: scale(0);
+      transition: transform 0.4s ease, opacity 0.4s ease;
     }
 
     .search-btn:hover {
-      opacity: 0.9;
-      box-shadow: 0 0 14px rgba(227,22,30,0.45), inset 0 1px 0 rgba(255,255,255,0.12);
+      box-shadow: 0 0 18px rgba(227,22,30,0.55);
     }
+
+    .search-btn:active::after {
+      opacity: 1;
+      transform: scale(2.5);
+      transition: none;
+    }
+
     .search-btn:active { transform: scale(0.97); }
+
+    /* Loading spinner inside button */
+    .search-btn.loading .btn-text { opacity: 0; }
+    .search-btn.loading::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      margin: auto;
+      width: 18px; height: 18px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
 
     /* ── No-match ── */
     .no-match {
@@ -194,6 +289,7 @@
       font-size: 13px;
       color: var(--muted);
       letter-spacing: 0.02em;
+      animation: fadeUp 0.4s ease forwards;
     }
 
     /* ── Results ── */
@@ -206,6 +302,8 @@
       margin-bottom: 1.1rem;
       padding-bottom: 0.75rem;
       border-bottom: 1px solid rgba(180,10,20,0.15);
+      opacity: 0;
+      animation: fadeUp 0.5s 0.1s ease forwards;
     }
 
     .results-label {
@@ -219,7 +317,6 @@
       font-size: 12px;
       color: var(--red);
       font-style: italic;
-      letter-spacing: 0.02em;
     }
 
     /* Cards */
@@ -234,41 +331,56 @@
       border: 1px solid var(--bdr);
       border-radius: 10px;
       opacity: 0;
-      transform: translateY(10px);
-      animation: rise 0.32s ease forwards;
-      transition: background 0.18s, border-color 0.18s, box-shadow 0.18s;
+      transform: translateX(-18px);
+      animation: slideRight 0.4s cubic-bezier(0.22,1,0.36,1) forwards;
+      transition: background 0.18s, border-color 0.2s, box-shadow 0.2s, transform 0.2s;
       position: relative;
       overflow: hidden;
+      cursor: default;
     }
 
-    /* Subtle left-edge red accent bar */
+    /* Shimmer sweep on hover */
+    .movie-card::after {
+      content: '';
+      position: absolute;
+      top: 0; left: -80%;
+      width: 50%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent);
+      transition: left 0.5s ease;
+      pointer-events: none;
+    }
+
+    .movie-card:hover::after { left: 140%; }
+
+    /* Left red bar */
     .movie-card::before {
       content: '';
       position: absolute;
-      left: 0; top: 20%; bottom: 20%;
+      left: 0; top: 15%; bottom: 15%;
       width: 2px;
-      background: var(--red);
+      background: linear-gradient(to bottom, transparent, var(--red), transparent);
       border-radius: 2px;
       opacity: 0;
-      transition: opacity 0.18s;
+      transition: opacity 0.2s;
     }
 
     .movie-card:hover {
       background: var(--sur2);
       border-color: var(--bdr2);
-      box-shadow: 0 4px 20px rgba(0,0,0,0.35), 0 0 0 0 transparent;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.4), 0 0 12px rgba(227,22,30,0.08);
+      transform: translateX(4px);
     }
 
     .movie-card:hover::before { opacity: 1; }
 
-    .movie-card:nth-child(1) { animation-delay: 0.04s; }
-    .movie-card:nth-child(2) { animation-delay: 0.09s; }
-    .movie-card:nth-child(3) { animation-delay: 0.14s; }
-    .movie-card:nth-child(4) { animation-delay: 0.19s; }
-    .movie-card:nth-child(5) { animation-delay: 0.24s; }
+    .movie-card:nth-child(1) { animation-delay: 0.06s; }
+    .movie-card:nth-child(2) { animation-delay: 0.13s; }
+    .movie-card:nth-child(3) { animation-delay: 0.20s; }
+    .movie-card:nth-child(4) { animation-delay: 0.27s; }
+    .movie-card:nth-child(5) { animation-delay: 0.34s; }
 
-    @keyframes rise {
-      to { opacity: 1; transform: translateY(0); }
+    @keyframes slideRight {
+      to { opacity: 1; transform: translateX(0); }
     }
 
     .num {
@@ -279,13 +391,12 @@
       text-align: right;
       letter-spacing: 0.04em;
       flex-shrink: 0;
-      text-shadow: 0 0 10px rgba(227,22,30,0.4);
+      text-shadow: 0 0 10px rgba(227,22,30,0.45);
     }
 
     .sep {
-      width: 1px;
-      height: 26px;
-      background: rgba(180,10,20,0.2);
+      width: 1px; height: 26px;
+      background: rgba(180,10,20,0.22);
       flex-shrink: 0;
     }
 
@@ -295,13 +406,22 @@
       font-weight: 400;
       color: var(--silver);
       letter-spacing: 0.01em;
+      transition: color 0.18s;
     }
+
+    .movie-card:hover .title { color: #fff; }
 
     .star {
       font-size: 11px;
       color: var(--gold);
       flex-shrink: 0;
       opacity: 0.8;
+      transition: transform 0.3s, opacity 0.3s;
+    }
+
+    .movie-card:hover .star {
+      transform: scale(1.4) rotate(20deg);
+      opacity: 1;
     }
 
     /* ── Footer ── */
@@ -312,6 +432,8 @@
       flex-direction: column;
       align-items: center;
       gap: 0.75rem;
+      opacity: 0;
+      animation: fadeUp 0.6s 1.2s ease forwards;
     }
 
     .foot p {
@@ -335,35 +457,59 @@
       color: var(--muted);
       text-decoration: none;
       letter-spacing: 0.04em;
-      transition: color 0.15s;
+      transition: color 0.2s, transform 0.2s;
     }
 
-    .foot-links a:hover { color: var(--red); }
+    .foot-links a:hover {
+      color: var(--red);
+      transform: translateY(-2px);
+    }
+
     .foot-dot { color: var(--muted2); font-size: 14px; }
+
+    /* ── Cursor glow (desktop only) ── */
+    .cursor-glow {
+      position: fixed;
+      width: 320px; height: 320px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(227,22,30,0.06) 0%, transparent 65%);
+      pointer-events: none;
+      z-index: 0;
+      transform: translate(-50%, -50%);
+      transition: left 0.08s, top 0.08s;
+    }
   </style>
 </head>
 <body>
+  <canvas id="particles"></canvas>
+  <div class="glow-orb"></div>
+  <div class="cursor-glow" id="cursorGlow"></div>
   <div class="topbar"></div>
 
   <div class="page">
 
     <div class="hero">
       <p class="eyebrow">Collaborative Filtering</p>
-      <h1 class="logo">CINE<em>MATCH</em></h1>
+      <h1 class="logo" id="logoEl">
+        <span class="word-cine"></span><span class="word-match"></span>
+      </h1>
       <p class="sub">Enter a film you love — get five worth watching next.</p>
     </div>
 
     <div class="search-wrap">
-      <form method="post" autocomplete="off">
+      <form method="post" autocomplete="off" id="searchForm">
         <input
           type="text"
           name="movie_name"
+          id="movieInput"
           placeholder="e.g. Avengers, Inception…"
           value="{{ request.form.get('movie_name', '') }}"
           autofocus
           required
         />
-        <button class="search-btn" type="submit">Find Films</button>
+        <button class="search-btn" type="submit" id="searchBtn">
+          <span class="btn-text">Find Films</span>
+        </button>
       </form>
 
       {% if request.method == 'POST' and not recommendations %}
@@ -407,5 +553,115 @@
     </div>
 
   </div>
+
+  <script>
+    // ── 1. Logo letter-by-letter drop-in ──────────────────────────────
+    const CINE  = 'CINE';
+    const MATCH = 'MATCH';
+    const cineEl  = document.querySelector('.word-cine');
+    const matchEl = document.querySelector('.word-match');
+
+    [...CINE].forEach((ch, i) => {
+      const s = document.createElement('span');
+      s.className = 'letter';
+      s.textContent = ch;
+      s.style.animationDelay = `${0.25 + i * 0.07}s`;
+      cineEl.appendChild(s);
+    });
+
+    [...MATCH].forEach((ch, i) => {
+      const s = document.createElement('span');
+      s.className = 'letter';
+      s.textContent = ch;
+      s.style.animationDelay = `${0.25 + (CINE.length + i) * 0.07}s`;
+      matchEl.appendChild(s);
+    });
+
+    // ── 2. Particle system ────────────────────────────────────────────
+    const canvas = document.getElementById('particles');
+    const ctx    = canvas.getContext('2d');
+    let W, H, particles = [];
+
+    function resize() {
+      W = canvas.width  = window.innerWidth;
+      H = canvas.height = window.innerHeight;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    class Particle {
+      constructor() { this.reset(true); }
+      reset(initial = false) {
+        this.x  = Math.random() * W;
+        this.y  = initial ? Math.random() * H : H + 10;
+        this.r  = Math.random() * 1.2 + 0.3;
+        this.vy = -(Math.random() * 0.4 + 0.15);
+        this.vx = (Math.random() - 0.5) * 0.15;
+        // mostly white/silver sparks, ~15% red
+        const isRed = Math.random() < 0.15;
+        this.color = isRed
+          ? `rgba(227,22,30,${Math.random() * 0.5 + 0.2})`
+          : `rgba(200,210,220,${Math.random() * 0.35 + 0.08})`;
+        this.life  = 1;
+        this.decay = Math.random() * 0.003 + 0.001;
+      }
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        this.life -= this.decay;
+        if (this.life <= 0 || this.y < -10) this.reset();
+      }
+      draw() {
+        ctx.save();
+        ctx.globalAlpha = this.life;
+        ctx.fillStyle   = this.color;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    for (let i = 0; i < 90; i++) particles.push(new Particle());
+
+    function animParticles() {
+      ctx.clearRect(0, 0, W, H);
+      particles.forEach(p => { p.update(); p.draw(); });
+      requestAnimationFrame(animParticles);
+    }
+    animParticles();
+
+    // ── 3. Cursor glow follow ─────────────────────────────────────────
+    const glow = document.getElementById('cursorGlow');
+    document.addEventListener('mousemove', e => {
+      glow.style.left = e.clientX + 'px';
+      glow.style.top  = e.clientY + 'px';
+    });
+
+    // ── 4. Button loading state on submit ─────────────────────────────
+    const form = document.getElementById('searchForm');
+    const btn  = document.getElementById('searchBtn');
+    form.addEventListener('submit', () => {
+      btn.classList.add('loading');
+    });
+
+    // ── 5. Input — typing sparks burst ────────────────────────────────
+    const input = document.getElementById('movieInput');
+    input.addEventListener('input', () => {
+      // burst 4 tiny red sparks at caret position
+      const rect = input.getBoundingClientRect();
+      for (let i = 0; i < 4; i++) {
+        const p = new Particle();
+        p.x  = rect.left + rect.width * 0.55;
+        p.y  = rect.bottom - 4;
+        p.vy = -(Math.random() * 1.5 + 0.8);
+        p.vx = (Math.random() - 0.5) * 1.2;
+        p.r  = Math.random() * 1.5 + 0.5;
+        p.color = `rgba(227,22,30,${Math.random() * 0.7 + 0.3})`;
+        p.decay = 0.025;
+        particles.push(p);
+      }
+    });
+  </script>
 </body>
 </html>
