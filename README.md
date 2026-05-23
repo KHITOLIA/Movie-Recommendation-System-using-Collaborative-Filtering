@@ -218,8 +218,7 @@ Possible improvements:
 
 # Author
 
-Tushar
-
+Tushar : https://github.com/KHITOLIA
 ---
 
 # License
