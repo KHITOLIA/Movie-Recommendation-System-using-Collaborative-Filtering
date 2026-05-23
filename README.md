@@ -192,17 +192,17 @@ http://127.0.0.1:5000
 ### Input
 
 ```text
-Batman
+Wolverine
 ```
 
 ### Recommendations
 
 ```text
-Batman Returns
-Batman Forever
-Hellboy
-Rush Hour
-Hook
+Avengers: Infinity War - Part I (2018)
+Punisher, The (2004)
+Dick Tracy (1990)
+Thor (2011)
+Incredible Hulk, The (2008)
 ```
 
 ---
