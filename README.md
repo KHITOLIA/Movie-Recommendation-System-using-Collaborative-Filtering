@@ -1,46 +1,43 @@
-﻿# Movie Recommendation System
+﻿# Movie Recommendation System 🎬
 
-A Movie Recommendation System built using **Collaborative Filtering** with **Cosine Similarity** on the MovieLens Latest Small Dataset.
-This project recommends similar movies based on user rating patterns.
+This project is a hybrid movie recommendation system built using the MovieLens dataset. The main goal was to recommend similar movies by combining both collaborative filtering and content-based filtering approaches.
 
----
+I built this project as part of an assignment for an Instructor role, and instead of using only one recommendation technique, I tried combining multiple approaches to improve the quality of recommendations.
 
-# Project Overview
-
-This project uses an **Item-Based Collaborative Filtering** approach to recommend movies to users.
-
-The recommendation system:
-
-* analyzes user rating behavior
-* finds similar movies using cosine similarity
-* recommends movies based on similarity scores
-
-The project also includes:
-
-* Exploratory Data Analysis (EDA)
-* Data preprocessing
-* Flask web application
-* Cold start handling
-* Movie name suggestions for misspelled inputs
+Live Demo:
+[Movie Recommendation Web App](https://recommendation-system.up.railway.app/?utm_source=chatgpt.com)
 
 ---
 
-# Dataset
+# About the Project
 
-Dataset used:
-[MovieLens Latest Small Dataset](https://files.grouplens.org/datasets/movielens/ml-latest-small.zip?utm_source=chatgpt.com)
+The recommendation system works in three stages:
 
-Dataset contains:
+* Collaborative Filtering
+  Recommends movies based on user rating behavior.
 
-* movies metadata
-* user ratings
-* movie genres
-* tags
+* Content-Based Filtering
+  Recommends movies using genres and movie tags.
 
-Main files used:
+* Hybrid Recommendation Pipeline
+  Combines recommendations from both approaches and ranks them based on similarity scores.
 
-* `movies.csv`
-* `ratings.csv`
+The application also supports partial movie name search, so users do not need to type the exact movie title.
+
+---
+
+# Dataset Used
+
+Dataset: [MovieLens Small Dataset](https://files.grouplens.org/datasets/movielens/ml-latest-small.zip?utm_source=chatgpt.com)
+
+Kaggle Version:
+[MovieLens Dataset on Kaggle](https://www.kaggle.com/datasets/grouplens/movielens-latest-small?utm_source=chatgpt.com)
+
+Files used from the dataset:
+
+* movies.csv
+* ratings.csv
+* tags.csv
 
 ---
 
@@ -51,176 +48,203 @@ Main files used:
 * NumPy
 * Scikit-learn
 * Flask
-* HTML/CSS
 * Matplotlib
+* Pickle
 
 ---
 
-# Recommendation Technique
+# Project Workflow
 
-This project uses:
+## 1. Data Preprocessing
 
-# Item-Based Collaborative Filtering
+* Merged movies, ratings, and tags datasets
+* Cleaned missing values
+* Combined genres and tags for content-based filtering
+* Removed duplicate movie entries
 
-Workflow:
+---
 
-1. Create movie-user pivot table
-2. Compute cosine similarity between movies
-3. Recommend movies with highest similarity scores
+## 2. Collaborative Filtering
+
+For collaborative filtering:
+
+* Created a movie-user pivot table
+* Filtered active users and popular movies
+* Used cosine similarity to find similar movies
+
+This approach recommends movies based on how users rate similar movies.
+
+---
+
+## 3. Content-Based Filtering
+
+For content-based filtering:
+
+* Combined genres and tags into a single text feature
+* Applied TF-IDF vectorization
+* Calculated cosine similarity between movies
+
+This approach recommends movies with similar metadata and tags.
+
+---
+
+## 4. Hybrid Recommendation System
+
+The final recommendation pipeline:
+
+* fetches top recommendations from collaborative filtering
+* fetches top recommendations from content-based filtering
+* combines both results
+* removes duplicate movies
+* sorts movies based on similarity scores
+* returns final recommendations
+
+This helped improve recommendation quality compared to using a single approach alone.
 
 ---
 
 # Features
 
-* Movie recommendation system
-* Similar movie suggestions
+* Hybrid recommendation system
+* Partial movie search support
 * Collaborative filtering
-* Cosine similarity
+* Content-based filtering
 * Flask web application
-* EDA and visualizations
-* Cold start handling
-* Misspelled movie suggestions
+* Railway deployment
 
 ---
 
-# Data Preprocessing
+# Folder Structure
 
-To improve recommendation quality:
-
-* considered users with minimum 100 ratings
-* considered movies with minimum 20 ratings
-* removed sparse/noisy interactions
-
-This helps improve recommendation accuracy.
-
----
-
-# Exploratory Data Analysis
-
-Performed:
-
-* rating distribution analysis
-* most rated movies
-* highest average rated movies
-* active users analysis
-
----
-
-# Project Structure
-
-```bash
-movie-recommendation-system/
-
+```text
+Movie-Recommendation-System/
 │
 ├── app.py
 ├── requirements.txt
-├── pt.pkl
-├── similarity_score.pkl
 ├── README.md
 │
-├── data/
-│   ├── movies.csv
-│   └── ratings.csv
+├── templates/
+│   └── index.html
 │
-├── notebooks/
+├── notebook/
 │   └── recommendation_system.ipynb
 │
-├── templates/
-   └── index.html
-
+├── pt.pkl
+├── collaborative_similarity.pkl
+├── content_similarity.pkl
+└── movie_data.pkl
 ```
 
 ---
 
-# Installation
+# How to Run the Project
 
-Clone repository:
-
-```bash
-git clone https://github.com/yourusername/movie-recommendation-system.git
-```
-
-Move into project directory:
+## Clone the Repository
 
 ```bash
-cd movie-recommendation-system
+git clone https://github.com/KHITOLIA/Movie-Recommendation-System-using-Collaborative-Filtering.git
 ```
 
-Install dependencies:
+```bash
+cd Movie-Recommendation-System
+```
+
+---
+
+## Create Virtual Environment
+
+### Windows
+
+```bash
+python -m venv venv
+```
+
+```bash
+venv\Scripts\activate
+```
+
+---
+
+## Install Dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-Run application:
+---
+
+## Run Flask Application
 
 ```bash
 python app.py
 ```
 
-Open browser:
+Open in browser:
 
-```bash
+```text
 http://127.0.0.1:5000
 ```
 
 ---
 
-# Example Recommendation
+# Example
 
-Input:
+### Input
 
-```python
-recommend("Toy Story (1995)")
+```text
+Batman
 ```
 
-Output:
+### Recommendations
 
-```python
-1. Bug's Life, A (1998)
-2. Aladdin (1992)
-3. Monsters, Inc. (2001)
-4. Finding Nemo (2003)
-5. Shrek (2001)
+```text
+Batman Returns
+Batman Forever
+Hellboy
+Rush Hour
+Hook
 ```
 
 ---
 
-# Cold Start Problem
+# Deployment
 
-This recommendation system can only recommend movies already present in the dataset.
+The application is deployed on Railway.
 
-For unseen/new movies:
-
-* similarity cannot be computed
-* recommendations cannot be generated
-
-This is known as the **Cold Start Problem** in recommendation systems.
-
-To improve usability:
-
-* movie existence validation added
-* spelling suggestion support added
+Live Application:
+[Recommendation System Live Demo](https://recommendation-system.up.railway.app)
 
 ---
 
 # Future Improvements
 
-Possible improvements:
+Some improvements that can be added later:
 
-* Hybrid recommendation system
-* Content-based filtering
-* Deep learning recommendation models
-* TMDb API integration for posters
-* User authentication
-* Real-time recommendations
+* movie posters using TMDB API
+* user-based personalized recommendations
+* user login system
+* matrix factorization techniques
+* deep learning recommendation models
+
+---
+
+# What I Learned
+
+Through this project, one can have a hands-on experience with:
+
+* recommendation systems
+* collaborative filtering
+* content-based filtering
+* hybrid recommendation pipelines
+* cosine similarity
+* TF-IDF vectorization
+* Flask deployment
+* Railway deployment
+
 ---
 
 # Author
 
-Tushar : https://github.com/KHITOLIA
----
+Tushar
 
-# License
-
-This project is for educational and learning purposes.
+GitHub: [GitHub](https://github.com/KHITOLIA)

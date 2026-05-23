@@ -91,16 +91,15 @@ def recommendation_pipeline(movie_name):
 
 
 @app.route('/', methods=['GET', 'POST'])
-
 def home():
 
     recommendations = []
 
     if request.method == 'POST':
 
-        movie_name = request.form['movie_name']
+        name = request.form['movie_name']
 
-        recommendations = recommendation_pipeline(movie_name)
+        recommendations = recommendation_pipeline(name)
 
     return render_template(
 
